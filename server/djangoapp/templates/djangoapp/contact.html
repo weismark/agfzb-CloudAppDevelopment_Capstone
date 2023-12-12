@@ -6,10 +6,26 @@
 </head>
 
     <body>
-        <h3>
-        Contact Us
-        </h3>
-        <p>Phone: (123) 456-7890</p>
-        <p>Address: 123 Main Street Springfield, IL 62701</p>
+        {% extends 'base.html' %}
+
+        {% block content %}
+        <div class="container">
+            <h3 class="display-5 text-center my-4">
+                Contact Us
+            </h3>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <p class="lead">
+                        <i class="fas fa-phone"></i> Phone: (123) 456-7890
+                    </p>
+                    <p class="lead">
+                        <i class="fas fa-map-marker-alt"></i> Address: 123 Main Street Springfield, IL 62701
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        {% endblock %}
+        
     </body>
 </html>
