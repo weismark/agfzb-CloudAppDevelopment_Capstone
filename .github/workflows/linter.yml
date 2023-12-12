@@ -5,7 +5,7 @@ on:
     branches: [master, main]
   pull_request:
     branches: [master, main]
-
+ 
 jobs: # list of things to do
   lint_function_js:
     name: Linting JavaScript Function 
