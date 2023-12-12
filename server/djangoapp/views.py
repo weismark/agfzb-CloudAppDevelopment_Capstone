@@ -61,24 +61,46 @@ def signout_view(request):
 # def registration_request(request):
 from django.contrib.auth.forms import UserCreationForm
 
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from django.contrib.auth import login
+from django.contrib import messages
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
+
 def signup_view(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
+    context = {}
+    # If it is a GET request, just render the registration page
+    if request.method == 'GET':
+        return render(request, 'djangoapp/signup.html', context)
+    # If it is a POST request
+    elif request.method == 'POST':
+        # Get user information from request.POST
+        username = request.POST['username']
+        password = request.POST['password']
+        first_name = request.POST['first_name']
+        last_name = request.POST['last_name']
+        user_exist = False
+        try:
+            # Check if user already exists
+            User.objects.get(username=username)
+            user_exist = True
+        except:
+            # If not, simply log this is a new user
+            logger.debug("{} is new user".format(username))
+        # If it is a new user
+        if not user_exist:
+            # Create user in auth_user table
+            user = User.objects.create_user(username=username, first_name=first_name, last_name=last_name,
+                                            password=password)
+            # Login the user and redirect to course list page
             login(request, user)
+            messages.success(request, 'Your account was created successfully.')
             return redirect("/djangoapp/")
         else:
-            # If the form is not valid, re-render the signup page with the form.
-            # This will display form validation errors on the page.
-            return render(request, 'djangoapp/signup.html', {'form': form})
-    else:
-        form = UserCreationForm()
-        return render(request, 'djangoapp/signup.html', {'form': form})
-
+            return render(request, 'djangoapp/signup.html', context)
 
 
 # Update the `get_dealerships` view to render the index page with a list of dealerships
