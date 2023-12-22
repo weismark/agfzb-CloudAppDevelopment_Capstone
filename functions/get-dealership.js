@@ -7,8 +7,8 @@ const Cloudant = require('@cloudant/cloudant');
 async function dbCloudantConnect() {
     try {
         const cloudant = Cloudant({
-            plugins: { iamauth: { iamApiKey: '' } }, // Replace with your IAM API key
-            url: '', // Replace with your Cloudant URL
+            plugins: { iamauth: { iamApiKey: 'HjZN1zzV5hRd5levUlwLIamfEZZWp_ODzFJE5RQoDi1h' } }, // Replace with your IAM API key
+            url: 'https://a0dbb279-ba16-4dfd-affc-9d679f145ab0-bluemix.cloudantnosqldb.appdomain.cloud', // Replace with your Cloudant URL
         });
 
         const db = cloudant.use('dealerships');
@@ -30,16 +30,12 @@ app.use(express.json());
 
 // Define a route to get all dealerships with optional state and ID filters
 app.get('/dealerships/get', (req, res) => {
-    const { state, id } = req.query;
+    const { state } = req.query;
 
     // Create a selector object based on query parameters
     const selector = {};
     if (state) {
         selector.state = state;
-    }
-    
-    if (id) {
-        selector.id = parseInt(id); // Filter by "id" with a value of 1
     }
 
     const queryOptions = {
@@ -57,6 +53,7 @@ app.get('/dealerships/get', (req, res) => {
         }
     });
 });
+
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
