@@ -2,10 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
-# from .models import related models
 from .models import CarModel, CarDealer
-# from .restapis import related methods
-from .restapis import get_dealers_from_cf
+from .restapis import get_dealer_by_id, get_dealers_from_cf, get_dealers_by_state, get_dealer_reviews_from_cf, post_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
@@ -104,13 +102,15 @@ def signup_view(request):
 # Update the `get_dealerships` view to render the index page with a list of dealerships
 def get_dealerships(request):
     if request.method == "GET":
+        context = {}
         url = "https://a0dbb279-ba16-4dfd-affc-9d679f145ab0-bluemix.cloudantnosqldb.appdomain.cloud/dealerships/dealer-get"
         # Get dealers from the URL
         dealerships = get_dealers_from_cf(url)
+        context["dealerships"] = get_dealers_from_cf(url)
         # Concat all dealer's short name
         dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
         # Return a list of dealer short name
-        return render(request, 'djangoapp/index.html', {'dealerships': dealerships})
+        return render(request, 'djangoapp/index.html', context)
       
 
 # Create a `get_dealer_details` view to render the reviews of a dealer
