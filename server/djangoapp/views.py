@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
@@ -9,16 +9,12 @@ from django.contrib import messages
 from datetime import datetime
 import logging
 import json
+from django.contrib.auth.forms import UserCreationForm
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
-
-# Create your views here.
-
 # Create an `about` view to render a static about page
-# def about(request):
-# ...
 def about(request):
     context = {}
     if request.method == "GET":
@@ -29,8 +25,8 @@ def contact(request):
     context = {}
     if request.method == "GET":
         return render(request, 'djangoapp/contact.html', context)
-# Create a `login_request` view to handle sign in request
 
+# Create a `login_request` view to handle sign in request
 def login_view(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -46,22 +42,9 @@ def login_view(request):
         return render(request, 'login.html')
 
 # Create a `logout_request` view to handle sign out request
-# def logout_request(request):
-
 def signout_view(request):
     logout(request)
     return redirect('djangoapp:index')  # Redirect to index page after logout
-
-
-# Create a `registration_request` view to handle sign up request
-# def registration_request(request):
-from django.contrib.auth.forms import UserCreationForm
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from django.contrib.auth import login
-from django.contrib import messages
-import logging
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -98,7 +81,6 @@ def signup_view(request):
         else:
             return render(request, 'djangoapp/signup.html', context)
 
-
 # Update the `get_dealerships` view to render the index page with a list of dealerships
 def get_dealerships(request):
     if request.method == "GET":
@@ -114,8 +96,6 @@ def get_dealerships(request):
       
 
 # Create a `get_dealer_details` view to render the reviews of a dealer
-# def get_dealer_details(request, dealer_id):
-# ...
 def get_dealer_details(request, dealer_id):
     context = {}
     if request.method == "GET":
@@ -129,8 +109,6 @@ def get_dealer_details(request, dealer_id):
         return render(request, 'djangoapp/dealer_details.html', context)
 
 # Create a `add_review` view to submit a review
-# def add_review(request, dealer_id):
-# ...
 def add_review(request, dealer_id):
     # User must be logged in before posting a review
     if request.user.is_authenticated:
