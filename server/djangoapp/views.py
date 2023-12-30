@@ -85,10 +85,12 @@ def signup_view(request):
 def get_dealerships(request):
     if request.method == "GET":
         context = {}
-        url = "https://a0dbb279-ba16-4dfd-affc-9d679f145ab0-bluemix.cloudantnosqldb.appdomain.cloud/dealerships/dealer-get"
+        url = "https://markoweissma-3000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
         # Get dealers from the URL
         dealerships = get_dealers_from_cf(url)
         context["dealerships"] = get_dealers_from_cf(url)
+        # Add debugging output
+        print("Dealerships:", dealerships)
         # Concat all dealer's short name
         dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
         # Return a list of dealer short name

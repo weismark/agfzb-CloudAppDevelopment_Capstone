@@ -30,10 +30,33 @@
             </tbody>
         </table>
     </div>
+    <!-- jQuery Full Version Inclusion -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <!-- turn-on filter control for the table -->
     <script>
-        $(function(){
-            $('#table').bootstrapTable()
-        })
+        jQuery.noConflict();  // Use no-conflict mode to avoid conflicts
+        jQuery(function($) {
+            // Make AJAX request to your API endpoint
+            $.ajax({
+                url: 'https://markoweissma-3000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get',
+                method: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    console.log('Received data:', data);  // Log data to the console
+                    // Check if the data is an array and not empty
+                    if (Array.isArray(data) && data.length > 0) {
+                        // Populate the table with the received data
+                        $('#table').bootstrapTable({
+                            data: data,
+                        });
+                    } else {
+                        console.error('No data received or data is not in the expected format.');
+                    }
+                },
+                error: function (error) {
+                    console.error('Error fetching data:', error);
+                }
+            });
+        });
     </script>
 {% endblock %}
