@@ -6,8 +6,6 @@ from . import views
 app_name = 'djangoapp'
 urlpatterns = [
     
-    # route is a string contains a URL pattern
-    # view refers to the view function
     # name the URL
     path(route='', view=views.get_dealerships, name='index'),
     # path for about view
