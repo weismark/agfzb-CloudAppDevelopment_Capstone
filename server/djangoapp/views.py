@@ -46,9 +46,6 @@ def signout_view(request):
     logout(request)
     return redirect('djangoapp:index')  # Redirect to index page after logout
 
-# Get an instance of a logger
-logger = logging.getLogger(__name__)
-
 def signup_view(request):
     context = {}
     # If it is a GET request, just render the registration page
@@ -99,64 +96,47 @@ def get_dealerships(request):
 
 # Create a `get_dealer_details` view to render the reviews of a dealer
 def get_dealer_details(request, dealer_id):
+    print(f"get_dealer_details view called with dealer_id: {dealer_id}")
     if request.method == "GET":
         context = {}
         dealer_url = 'https://markoweissma-3000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get'
         reviews_url = "https://markoweissma-5000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/get_reviews"
         dealerships = get_dealers_from_cf(dealer_url, id =dealer_id)
+        print(dealerships)
         context['dealership'] = dealerships[0]
         dealership_reviews = get_dealer_reviews_from_cf(reviews_url, id=dealer_id)
+        print(dealership_reviews)
         context['review_list'] = dealership_reviews
 
         return render(request, 'djangoapp/dealer_details.html', context)
 
 # Create a `add_review` view to submit a review
 def add_review(request, dealer_id):
-    # User must be logged in before posting a review
-    if request.user.is_authenticated:
-        # GET request renders the page with the form for filling out a review
-        if request.method == "GET":
-            url = f"https://9bebcb01.eu-de.apigw.appdomain.cloud/dealerships/dealer-get?dealerId={dealer_id}"
-            # Get dealer details from the API
-            context = {
-                "cars": CarModel.objects.all(),
-                "dealer": get_dealer_by_id(url, dealer_id=dealer_id),
-            }
-            return render(request, 'djangoapp/add_review.html', context)
-
-        # POST request posts the content in the review submission form to the Cloudant DB using the post_review Cloud Function
-        if request.method == "POST":
-            form = request.POST
+    if(request.method == "GET"):
+        context = {}
+        dealer_url = "https://markoweissma-3000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
+        dealerships = get_dealers_from_cf(dealer_url, id=dealer_id)
+        car_models = CarModel.objects.filter(dealer_id=dealer_id)
+        context['cars'] = car_models
+        context['dealership'] = dealerships[0]
+        context['dealer_id'] = dealer_id
+        return render(request, 'djangoapp/add_review.html', context)
+    elif(request.method=="POST"):
+        if(request.user.is_authenticated):
+            url = "https://markoweissma-5000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/post_review"
             review = dict()
-            review["name"] = f"{request.user.first_name} {request.user.last_name}"
+            review["id"] = 1
             review["dealership"] = dealer_id
-            review["review"] = form["content"]
-            review["purchase"] = form.get("purchasecheck")
-            if review["purchase"]:
-                review["purchase_date"] = datetime.strptime(form.get("purchasedate"), "%m/%d/%Y").isoformat()
-            car = CarModel.objects.get(pk=form["car"])
-            review["car_make"] = car.car_make.name
-            review["car_model"] = car.name
-            review["car_year"] = car.year
-            
-            # If the user bought the car, get the purchase date
-            if form.get("purchasecheck"):
-                review["purchase_date"] = datetime.strptime(form.get("purchasedate"), "%m/%d/%Y").isoformat()
-            else: 
-                review["purchase_date"] = None
-
-            url = "https://9bebcb01.eu-de.apigw.appdomain.cloud/api/review"  # API Cloud Function route
-            json_payload = {"review": review}  # Create a JSON payload that contains the review data
-
-            # Performing a POST request with the review
-            result = post_request(url, json_payload, dealerId=dealer_id)
-            if int(result.status_code) == 200:
-                print("Review posted successfully.")
-
-            # After posting the review the user is redirected back to the dealer details page
-            return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
-
-    else:
-        # If user isn't logged in, redirect to login page
-        print("User must be authenticated before posting a review. Please log in.")
-        return redirect("/djangoapp/login")
+            review["name"] = request.POST.get('content')
+            review["review"] = request.POST.get('content')
+            review["purchase"] = request.POST.get('purchasecheck') == "on"
+            review["purchase_date"] = request.POST.get('purchasedate')
+            car_models = CarModel.objects.filter(id=request.POST.get('car'))
+            car_model = car_models[0]
+            review["car_make"] = car_model.make.name
+            review["car_model"] = car_model.name
+            review["car_year"] = str(car_model.year)[0:4]
+            print(review)
+            response = post_request(url, review, dealerId = dealer_id)
+            print(response)
+        return redirect("djangoapp:dealer_details", dealer_id=dealer_id)

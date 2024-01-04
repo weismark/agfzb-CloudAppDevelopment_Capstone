@@ -59,7 +59,7 @@
                         
                         // Modify the data to include dealer details links
                         data.forEach(function(dealer) {
-                            dealer.full_name = '<a href="/dealership/' + dealer.id + '">' + dealer.full_name + '</a>';
+                            dealer.full_name = '<a href="/dealer/' + dealer.id + '">' + dealer.full_name + '</a>';
                         });
     
                         // Continue with Bootstrap Table initialization

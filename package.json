@@ -1,5 +1,17 @@
 {
   "dependencies": {
-    "cors": "^2.8.5"
-  }
+    "@cloudant/cloudant": "^4.5.1",
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "name": "agfzb-cloudappdevelopment_capstone",
+  "description": "The final project for this course has several steps that you must complete.  To give you an overview of the whole project, all the high-level steps are listed below.  The project is then divided into several smaller labs that give the detailed instructions for each step.  You must complete all the labs to successfully complete the project.",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
