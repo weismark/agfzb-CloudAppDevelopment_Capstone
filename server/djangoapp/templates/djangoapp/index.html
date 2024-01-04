@@ -42,35 +42,39 @@
     <script src="https://unpkg.com/bootstrap-table@1.18.3/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
 
     <!-- turn-on filter control for the table -->
-<script>
-    jQuery.noConflict();  // Use no-conflict mode to avoid conflicts
-    jQuery(function($) {
-        // Make AJAX request to your API endpoint
-        $.ajax({
-            url: 'https://markoweissma-3000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get',
-            method: 'GET',
-            dataType: 'json',
-            success: function (data) {
-                console.log('Received data:', data);  // Log data to the console
-
-                // Check if the data is an array and not empty
-                if (Array.isArray(data) && data.length > 0) {
-                    console.log('Initializing Bootstrap Table...');
-                    // Continue with Bootstrap Table initialization
-                    $('#table').bootstrapTable({
-                        data: data,
-                    });
-                } else {
-                    console.error('No data received or data is not in the expected format.');
+    <script>
+        jQuery.noConflict();  // Use no-conflict mode to avoid conflicts
+        jQuery(function($) {
+            // Make AJAX request to your API endpoint
+            $.ajax({
+                url: 'https://markoweissma-3000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get',
+                method: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    console.log('Received data:', data);  // Log data to the console
+    
+                    // Check if the data is an array and not empty
+                    if (Array.isArray(data) && data.length > 0) {
+                        console.log('Initializing Bootstrap Table...');
+                        
+                        // Modify the data to include dealer details links
+                        data.forEach(function(dealer) {
+                            dealer.full_name = '<a href="/dealership/' + dealer.id + '">' + dealer.full_name + '</a>';
+                        });
+    
+                        // Continue with Bootstrap Table initialization
+                        $('#table').bootstrapTable({
+                            data: data,
+                        });
+                    } else {
+                        console.error('No data received or data is not in the expected format.');
+                    }
+                },
+                error: function (error) {
+                    console.error('Error fetching data:', error);
                 }
-            },
-            error: function (error) {
-                console.error('Error fetching data:', error);
-            }
+            });
         });
-    });
-</script>
-
-
+    </script>    
 
 {% endblock %}

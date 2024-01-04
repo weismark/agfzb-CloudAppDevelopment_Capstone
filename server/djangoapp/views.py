@@ -85,7 +85,7 @@ def signup_view(request):
 def get_dealerships(request):
     if request.method == "GET":
         context = {}
-        url = "https://markoweissma-3000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
+        url = "https://markoweissma-3000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
         # Get dealers from the URL
         dealerships = get_dealers_from_cf(url)
         context["dealerships"] = get_dealers_from_cf(url)
@@ -99,14 +99,14 @@ def get_dealerships(request):
 
 # Create a `get_dealer_details` view to render the reviews of a dealer
 def get_dealer_details(request, dealer_id):
-    context = {}
     if request.method == "GET":
-        url = 'https://markoweissma-3000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/review'
-        reviews = get_dealer_reviews_from_cf(url, dealer_id=dealer_id)
-        context = {
-            "reviews":  reviews, 
-            "dealer_id": dealer_id
-        }
+        context = {}
+        dealer_url = 'https://markoweissma-3000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get'
+        reviews_url = "https://markoweissma-5000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/get_reviews"
+        dealerships = get_dealers_from_cf(dealer_url, id =dealer_id)
+        context['dealership'] = dealerships[0]
+        dealership_reviews = get_dealer_reviews_from_cf(reviews_url, id=dealer_id)
+        context['review_list'] = dealership_reviews
 
         return render(request, 'djangoapp/dealer_details.html', context)
 
