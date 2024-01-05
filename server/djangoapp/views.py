@@ -10,6 +10,7 @@ from datetime import datetime
 import logging
 import json
 from django.contrib.auth.forms import UserCreationForm
+from django.http import HttpResponseServerError
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -133,22 +134,25 @@ def get_dealer_details(request, dealer_id):
         return render(request, 'djangoapp/dealer_details.html', context)
 
 
-
-
-
 # Create a `add_review` view to submit a review
 def add_review(request, dealer_id):
-    if(request.method == "GET"):
+    if request.method == "GET":
         context = {}
         dealer_url = "https://markoweissma-3000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
         dealerships = get_dealers_from_cf(dealer_url, id=dealer_id)
         car_models = CarModel.objects.filter(dealer_id=dealer_id)
         context['cars'] = car_models
-        context['dealership'] = dealerships[0]
         context['dealer_id'] = dealer_id
+
+        # Check if there are dealerships before accessing the first one
+        if dealerships:
+            context['dealership'] = dealerships[0]
+        else:
+            context['dealership'] = None  # Handle the case where there are no dealerships
+
         return render(request, 'djangoapp/add_review.html', context)
-    elif(request.method=="POST"):
-        if(request.user.is_authenticated):
+    elif request.method == "POST":
+        if request.user.is_authenticated:
             url = "https://markoweissma-5000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/post_review"
             review = dict()
             review["id"] = 1
@@ -163,6 +167,6 @@ def add_review(request, dealer_id):
             review["car_model"] = car_model.name
             review["car_year"] = str(car_model.year)[0:4]
             print(review)
-            response = post_request(url, review, dealerId = dealer_id)
+            response = post_request(url, review, dealerId=dealer_id)
             print(response)
         return redirect("djangoapp:dealer_details", dealer_id=dealer_id)

@@ -3,7 +3,6 @@
     {% if dealer_id %}
         <div class="container">
             {% if reviews %}
-                <!-- Existing code for displaying actual reviews -->
                 <div class="card-columns">
                     {% for review in reviews %}
                         <div class="card">
@@ -23,32 +22,22 @@
                         </div>
                     {% endfor %}
                 </div>
-            {% else %}
-                <!-- Show dealer name for mockup reviews -->
-                <p class="card-text">Reviews for <strong>Sub-Ex Car Dealership</strong></p>
-            {% endif %}
-        </div>
-
-        <!-- Mockup reviews -->
-        <div class="container">
-            <div class="card-columns">
-                {% for mockup_review in mockup_reviews %}
-                    <div class="card">
-                        {% if mockup_review.sentiment == "positive" %}
-                            <img class="card-img-left" src="{{ MEDIA_URL }}/emoji/positive.png" width="36px" height="36px" alt="Sentiment" />
-                        {% elif mockup_review.sentiment == "neutral" %}
-                            <img class="card-img-left" src="{{ MEDIA_URL }}/emoji/neutral.png" width="36px" height="36px" alt="Sentiment" />
-                        {% else %}
-                            <img class="card-img-left" src="{{ MEDIA_URL }}/emoji/negative.png" width="36px" height="36px" alt="Sentiment" />
-                        {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title">{{ mockup_review.car_make }}, {{ mockup_review.car_model }}</h5>
-                            <p class="card-subtitle"><strong>{{ mockup_review.car_year }}</strong></p>
-                            <p class="card-text">{{ mockup_review.review }}</p>
-                        </div>
+                <!-- Add Review button -->
+                {% if user.is_authenticated %}
+                    <div style="margin: 10px;">
+                        <a class="btn btn-primary" href="{% url 'djangoapp:add_review' dealer_id %}"><b>Add Review</b></a>
                     </div>
-                {% endfor %}
-            </div>
+                {% endif %}
+            {% else %}
+                <!-- Show the previous text when there are no reviews -->
+                <p class="card-text">No reviews for this dealership.</p>
+                <!-- Add Review button -->
+                {% if user.is_authenticated %}
+                    <div style="margin: 10px;">
+                        <a class="btn btn-primary" href="{% url 'djangoapp:add_review' dealer_id %}"><b>Add Review</b></a>
+                    </div>
+                {% endif %}
+            {% endif %}
         </div>
     {% else %}
         <p>No dealer information available.</p>
