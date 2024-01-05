@@ -32,12 +32,16 @@ app.use(cors()); // Enable CORS for all routes
 
 // Define a route to get all dealerships with optional state and ID filters
 app.get('/dealerships/get', (req, res) => {
-    const { state } = req.query;
+    const { state, id } = req.query;
 
     // Create a selector object based on query parameters
     const selector = {};
     if (state) {
         selector.state = state;
+    }
+
+    if (id) {
+        selector.id = parseInt(id); // Filter by "id" with a value of 1
     }
 
     const queryOptions = {

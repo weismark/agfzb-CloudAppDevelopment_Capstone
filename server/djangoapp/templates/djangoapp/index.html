@@ -22,7 +22,7 @@
                 {% for dealer in dealerships %}
                 <tr>
                     <td>{{dealer.id}}</td>
-                    <td><a href="{% url 'djangoapp:dealer_details' dealer.id %}">{{dealer.full_name}}</a></td>
+                    <td>{{dealer.full_name}}</td>
                     <td>{{dealer.city}}</td>
                     <td>{{dealer.address}}</td>
                     <td>{{dealer.zip}}</td>
@@ -59,7 +59,7 @@
                         
                         // Modify the data to include dealer details links
                         data.forEach(function(dealer) {
-                            dealer.full_name = '<a href="/dealer/' + dealer.id + '">' + dealer.full_name + '</a>';
+                            dealer.full_name = '<a href="/djangoapp/dealer/' + dealer.id + '">' + dealer.full_name + '</a>';
                         });
     
                         // Continue with Bootstrap Table initialization

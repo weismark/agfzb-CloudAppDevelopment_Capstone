@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
-from .models import CarModel, CarDealer
+from .models import CarModel, CarMake, CarDealer, DealerReview
 from .restapis import get_dealer_by_id, get_dealers_from_cf, get_dealers_by_state, get_dealer_reviews_from_cf, post_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
@@ -99,16 +99,42 @@ def get_dealer_details(request, dealer_id):
     print(f"get_dealer_details view called with dealer_id: {dealer_id}")
     if request.method == "GET":
         context = {}
-        dealer_url = 'https://markoweissma-3000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get'
+        dealer_url = "https://markoweissma-3000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
         reviews_url = "https://markoweissma-5000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/get_reviews"
-        dealerships = get_dealers_from_cf(dealer_url, id =dealer_id)
-        print(dealerships)
-        context['dealership'] = dealerships[0]
-        dealership_reviews = get_dealer_reviews_from_cf(reviews_url, id=dealer_id)
-        print(dealership_reviews)
+        
+        dealerships = get_dealers_from_cf(dealer_url, id=dealer_id)
+        print("Dealerships:", dealerships)
+        
+        if dealerships:
+            context['dealership'] = dealerships[0]
+            context['dealer_id'] = dealer_id
+        else:
+            context['dealership'] = None
+            context['dealer_id'] = dealer_id
+            # or return a response indicating that the dealership was not found
+        
+        # Remove 'id=' from the argument since it's already a positional argument
+        dealership_reviews = get_dealer_reviews_from_cf(reviews_url, dealer_id)
+        print("Dealership Reviews:", dealership_reviews)
+        
         context['review_list'] = dealership_reviews
 
+        # Mockup reviews
+        mockup_reviews = [
+            {'car_make': 'Subaru', 'car_model': 'Forester', 'car_year': 2021, 'review': 'Bad test comment for the dealer'},
+            {'car_make': 'Subaru', 'car_model': 'Impreza', 'car_year': 2021, 'review': 'This is a poor dealer'},
+            {'car_make': 'Subaru', 'car_model': 'Forester', 'car_year': 2021, 'review': 'This is a very bad dealer'},
+            {'car_make': 'Subaru', 'car_model': 'Forester', 'car_year': 2021, 'review': "No good!"},
+            {'car_make': 'Subaru', 'car_model': 'Forester', 'car_year': 2021, 'review': 'Never again!'},
+            {'car_make': 'Subaru', 'car_model': 'Impreza', 'car_year': 2021, 'review': 'Bad service.'},
+        ]
+        context['mockup_reviews'] = mockup_reviews
+
         return render(request, 'djangoapp/dealer_details.html', context)
+
+
+
+
 
 # Create a `add_review` view to submit a review
 def add_review(request, dealer_id):

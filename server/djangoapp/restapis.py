@@ -1,5 +1,6 @@
 import requests
 import json
+import logging
 from .models import CarDealer, DealerReview
 from requests.auth import HTTPBasicAuth
 
@@ -101,50 +102,67 @@ def get_dealers_by_state(url, state):
 
 def get_dealer_reviews_from_cf(url, dealer_id):
     results = []
+
     # Perform a GET request with the specified dealer id
     json_result = get_request(url, dealerId=dealer_id)
-    print(json_result)
+    
+    # Logging the content of the response
+    logging.debug(json_result)
 
-    if json_result:
-        # Get all review data from the response
-        reviews = json_result["body"]["data"]["docs"]
-        # For every review in the response
-        for review in reviews:
-            # Create a DealerReview object from the data
-            # These values must be present
-            review_content = review["review"]
-            id = review["_id"]
-            name = review["name"]
-            purchase = review["purchase"]
-            dealership = review["dealership"]
+    try:
+        # Check if the expected keys are present in the response
+        if "body" in json_result and "data" in json_result["body"] and "docs" in json_result["body"]["data"]:
+            # Get all review data from the response
+            reviews = json_result["body"]["data"]["docs"]
+            
+            # For every review in the response
+            for review in reviews:
+                # Create a DealerReview object from the data
+                # These values must be present
+                review_content = review.get("review", "Default Review Content")
+                id = review.get("_id", "Default ID")
+                name = review.get("name", "Default Name")
+                purchase = review.get("purchase", "Default Purchase")
+                dealership = review.get("dealership", "Default Dealership")
 
-            try:
-                # These values may be missing
-                car_make = review["car_make"]
-                car_model = review["car_model"]
-                car_year = review["car_year"]
-                purchase_date = review["purchase_date"]
+                try:
+                    # These values may be missing
+                    car_make = review.get("car_make", "Default Car Make")
+                    car_model = review.get("car_model", "Default Car Model")
+                    car_year = review.get("car_year", "Default Car Year")
+                    purchase_date = review.get("purchase_date", "Default Purchase Date")
 
-                # Creating a review object
-                review_obj = DealerReview(dealership=dealership, id=id, name=name, 
-                                          purchase=purchase, review=review_content, car_make=car_make, 
-                                          car_model=car_model, car_year=car_year, purchase_date=purchase_date
-                                          )
+                    # Creating a review object
+                    review_obj = DealerReview(
+                        dealership=dealership, id=id, name=name, 
+                        purchase=purchase, review=review_content, car_make=car_make, 
+                        car_model=car_model, car_year=car_year, purchase_date=purchase_date
+                    )
 
-            except KeyError:
-                print("Something is missing from this review. Using default values.")
-                # Creating a review object with some default values
-                review_obj = DealerReview(
-                    dealership=dealership, id=id, name=name, purchase=purchase, review=review_content)
+                except KeyError:
+                    logging.warning("Something is missing from this review. Using default values.")
+                    # Creating a review object with some default values
+                    review_obj = DealerReview(
+                        dealership=dealership, id=id, name=name, purchase=purchase, review=review_content)
 
-            # Analysing the sentiment of the review object's review text and saving it to the object attribute "sentiment"
-            review_obj.sentiment = analyze_review_sentiments(review_obj.review)
-            print(f"sentiment: {review_obj.sentiment}")
+                # Analysing the sentiment of the review object's review text and saving it to the object attribute "sentiment"
+                review_obj.sentiment = analyze_review_sentiments(review_obj.review)
+                logging.debug(f"sentiment: {review_obj.sentiment}")
 
-            # Saving the review object to the list of results
-            results.append(review_obj)
-    print(results)
+                # Saving the review object to the list of results
+                results.append(review_obj)
+        else:
+            # Log a message indicating missing keys
+            logging.warning("Expected keys are missing in the response.")
+    except KeyError as e:
+        # Handle any other KeyErrors that might occur
+        logging.error(f"KeyError: {e}")
+    
+    # Logging the results
+    logging.debug(results)
+    
     return results
+
 
 # Create an `analyze_review_sentiments` method to call Watson NLU and analyze text
 # def analyze_review_sentiments(text):
