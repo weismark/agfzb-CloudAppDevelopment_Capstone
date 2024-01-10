@@ -13,7 +13,6 @@
                             {% else %}
                                 <img class="card-img-left" src="{{ MEDIA_URL }}/emoji/negative.png" width="36px" height="36px" alt="Sentiment" />
                             {% endif %}
-            
                             <div class="card-body">
                                 <h5 class="card-title">{{ review.car_make }}, {{ review.car_model }}</h5>
                                 <p class="card-subtitle"><strong>{{ review.car_year }}</strong></p>
@@ -29,7 +28,7 @@
                     </div>
                 {% endif %}
             {% else %}
-                <!-- Show the previous text when there are no reviews -->
+                <!-- Show the message when there are no reviews -->
                 <p class="card-text">No reviews for this dealership.</p>
                 <!-- Add Review button -->
                 {% if user.is_authenticated %}

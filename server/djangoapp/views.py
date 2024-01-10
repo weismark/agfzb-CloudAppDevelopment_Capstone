@@ -12,8 +12,10 @@ import json
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponseServerError
 
+
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
+
 
 # Create an `about` view to render a static about page
 def about(request):
@@ -21,11 +23,13 @@ def about(request):
     if request.method == "GET":
         return render(request, 'djangoapp/about.html', context)
 
+
 # Create a `contact` view to return a static contact page
 def contact(request):
     context = {}
     if request.method == "GET":
         return render(request, 'djangoapp/contact.html', context)
+
 
 # Create a `login_request` view to handle sign in request
 def login_view(request):
@@ -42,10 +46,12 @@ def login_view(request):
         # Render the login form
         return render(request, 'login.html')
 
+
 # Create a `logout_request` view to handle sign out request
 def signout_view(request):
     logout(request)
     return redirect('djangoapp:index')  # Redirect to index page after logout
+
 
 def signup_view(request):
     context = {}
@@ -79,11 +85,12 @@ def signup_view(request):
         else:
             return render(request, 'djangoapp/signup.html', context)
 
+
 # Update the `get_dealerships` view to render the index page with a list of dealerships
 def get_dealerships(request):
     if request.method == "GET":
         context = {}
-        url = "https://markoweissma-3000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
+        url = "https://markoweissma-3000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
         # Get dealers from the URL
         dealerships = get_dealers_from_cf(url)
         context["dealerships"] = get_dealers_from_cf(url)
@@ -93,19 +100,20 @@ def get_dealerships(request):
         dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
         # Return a list of dealer short name
         return render(request, 'djangoapp/index.html', context)
-      
+     
+
 
 # Create a `get_dealer_details` view to render the reviews of a dealer
 def get_dealer_details(request, dealer_id):
     print(f"get_dealer_details view called with dealer_id: {dealer_id}")
     if request.method == "GET":
         context = {}
-        dealer_url = "https://markoweissma-3000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
-        reviews_url = "https://markoweissma-5000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/get_reviews"
-        
+        dealer_url = "https://markoweissma-3000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
+        reviews_url = "https://markoweissma-5000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/get_reviews"
+       
         dealerships = get_dealers_from_cf(dealer_url, id=dealer_id)
         print("Dealerships:", dealerships)
-        
+       
         if dealerships:
             context['dealership'] = dealerships[0]
             context['dealer_id'] = dealer_id
@@ -113,36 +121,39 @@ def get_dealer_details(request, dealer_id):
             context['dealership'] = None
             context['dealer_id'] = dealer_id
             # or return a response indicating that the dealership was not found
-        
+       
         # Remove 'id=' from the argument since it's already a positional argument
-        dealership_reviews = get_dealer_reviews_from_cf(reviews_url, dealer_id)
-        print("Dealership Reviews:", dealership_reviews)
-        
-        context['review_list'] = dealership_reviews
-
-        # Mockup reviews
-        mockup_reviews = [
-            {'car_make': 'Subaru', 'car_model': 'Forester', 'car_year': 2021, 'review': 'Bad test comment for the dealer'},
-            {'car_make': 'Subaru', 'car_model': 'Impreza', 'car_year': 2021, 'review': 'This is a poor dealer'},
-            {'car_make': 'Subaru', 'car_model': 'Forester', 'car_year': 2021, 'review': 'This is a very bad dealer'},
-            {'car_make': 'Subaru', 'car_model': 'Forester', 'car_year': 2021, 'review': "No good!"},
-            {'car_make': 'Subaru', 'car_model': 'Forester', 'car_year': 2021, 'review': 'Never again!'},
-            {'car_make': 'Subaru', 'car_model': 'Impreza', 'car_year': 2021, 'review': 'Bad service.'},
-        ]
-        context['mockup_reviews'] = mockup_reviews
+        try:
+            dealership_reviews_response = get_dealer_reviews_from_cf(reviews_url, dealer_id)
+            
+            if isinstance(dealership_reviews_response, list):
+                if dealership_reviews_response:
+                    print("Dealership Reviews API Response Content:", dealership_reviews_response)
+                    context['reviews'] = dealership_reviews_response
+                else:
+                    print("Dealership Reviews API Response: Empty list")
+                    context['reviews'] = []
+            else:
+                print("Invalid Dealership Reviews API Response:", dealership_reviews_response)
+                context['reviews'] = []
+        except Exception as e:
+            print(f"Error getting reviews from API: {e}")
+            context['reviews'] = []
 
         return render(request, 'djangoapp/dealer_details.html', context)
+
 
 
 # Create a `add_review` view to submit a review
 def add_review(request, dealer_id):
     if request.method == "GET":
         context = {}
-        dealer_url = "https://markoweissma-3000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
+        dealer_url = "https://markoweissma-3000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
         dealerships = get_dealers_from_cf(dealer_url, id=dealer_id)
         car_models = CarModel.objects.filter(dealer_id=dealer_id)
         context['cars'] = car_models
         context['dealer_id'] = dealer_id
+
 
         # Check if there are dealerships before accessing the first one
         if dealerships:
@@ -150,10 +161,13 @@ def add_review(request, dealer_id):
         else:
             context['dealership'] = None  # Handle the case where there are no dealerships
 
+
         return render(request, 'djangoapp/add_review.html', context)
     elif request.method == "POST":
+        logging.info("POST data received:")
+        logging.info(request.POST)
         if request.user.is_authenticated:
-            url = "https://markoweissma-5000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/post_review"
+            url = "https://markoweissma-5000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/post_review"
             review = dict()
             review["id"] = 1
             review["dealership"] = dealer_id
@@ -163,7 +177,10 @@ def add_review(request, dealer_id):
             review["purchase_date"] = request.POST.get('purchasedate')
             car_models = CarModel.objects.filter(id=request.POST.get('car'))
             car_model = car_models[0]
-            review["car_make"] = car_model.make.name
+            if car_model.car_make:
+                review["car_make"] = car_model.car_make.name
+            else:
+                review["car_make"] = None
             review["car_model"] = car_model.name
             review["car_year"] = str(car_model.year)[0:4]
             print(review)
