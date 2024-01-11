@@ -2,7 +2,7 @@
 {% block content %}
     {% if dealer_id %}
         <div class="container">
-            {% if reviews %}
+            {% if reviews|length > 0 %}
                 <div class="card-columns">
                     {% for review in reviews %}
                         <div class="card">
@@ -17,6 +17,8 @@
                                 <h5 class="card-title">{{ review.car_make }}, {{ review.car_model }}</h5>
                                 <p class="card-subtitle"><strong>{{ review.car_year }}</strong></p>
                                 <p class="card-text">{{ review.review }}</p>
+                                <!-- Debugging: Print review information -->
+                                <p>Debug: Review ID: {{ review.id }}, Sentiment: {{ review.sentiment }}</p>
                             </div>
                         </div>
                     {% endfor %}
@@ -41,4 +43,8 @@
     {% else %}
         <p>No dealer information available.</p>
     {% endif %}
+    <!-- Debugging: Print entire context -->
+    {% for key, value in context.items %}
+        <p>Debug: {{ key }} - {{ value }}</p>
+    {% endfor %}
 {% endblock %}

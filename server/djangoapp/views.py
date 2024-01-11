@@ -116,6 +116,7 @@ def get_dealer_details(request, dealer_id):
        
         if dealerships:
             context['dealership'] = dealerships[0]
+            print(f"Dealship Name: {dealerships[0].full_name}")
             context['dealer_id'] = dealer_id
         else:
             context['dealership'] = None
@@ -125,11 +126,13 @@ def get_dealer_details(request, dealer_id):
         # Remove 'id=' from the argument since it's already a positional argument
         try:
             dealership_reviews_response = get_dealer_reviews_from_cf(reviews_url, dealer_id)
-            
+            print("Dealership Reviews API Response Content:", dealership_reviews_response)
+
             if isinstance(dealership_reviews_response, list):
                 if dealership_reviews_response:
                     print("Dealership Reviews API Response Content:", dealership_reviews_response)
                     context['reviews'] = dealership_reviews_response
+                    print("Context:", context)
                 else:
                     print("Dealership Reviews API Response: Empty list")
                     context['reviews'] = []
@@ -154,13 +157,11 @@ def add_review(request, dealer_id):
         context['cars'] = car_models
         context['dealer_id'] = dealer_id
 
-
         # Check if there are dealerships before accessing the first one
         if dealerships:
-            context['dealership'] = dealerships[0]
+            context['dealer'] = dealerships[0]
         else:
-            context['dealership'] = None  # Handle the case where there are no dealerships
-
+            context['dealer'] = None  # Handle the case where there are no dealerships
 
         return render(request, 'djangoapp/add_review.html', context)
     elif request.method == "POST":

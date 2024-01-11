@@ -52,7 +52,7 @@ class CarDealer:
         # Dealer city
         self.city = city
         # Dealer Full Name
-        self.full_name = full_name
+        self.full_name = full_name  # Make sure full_name is included in the initialization
         # Dealer id
         self.id = id
         # Location lat
@@ -68,6 +68,7 @@ class CarDealer:
 
     def __str__(self):
         return "Dealer name: " + self.full_name
+
 
 # <HINT> Create a plain Python class `DealerReview` to hold review data
 class DealerReview:
