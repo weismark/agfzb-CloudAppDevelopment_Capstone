@@ -172,7 +172,7 @@ def add_review(request, dealer_id):
             review = dict()
             review["id"] = 1
             review["dealership"] = dealer_id
-            review["name"] = request.POST.get('content')
+            review["name"] = f"{request.user.first_name} {request.user.last_name}"
             review["review"] = request.POST.get('content')
             review["purchase"] = request.POST.get('purchasecheck') == "on"
             review["purchase_date"] = request.POST.get('purchasedate')

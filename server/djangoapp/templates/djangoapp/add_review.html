@@ -5,7 +5,7 @@
 <h1 class="px-3">Add a review about {{ dealer.full_name }}</h1>
 <div class="bg-white">
     <div class="container py-2"> 
-        <form action="{% url 'djangoapp:add_review' dealer_id%}" method="post">
+        <form action="{% url 'djangoapp:add_review' dealer_id %}" method="post">
             {% csrf_token %}
             <div class="container">
                 <div class="form-group">

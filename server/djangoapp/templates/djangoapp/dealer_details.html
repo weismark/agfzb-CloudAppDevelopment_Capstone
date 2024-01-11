@@ -18,9 +18,12 @@
                                 <p class="card-subtitle"><strong>{{ review.car_year }}</strong></p>
                                 <p class="card-text">{{ review.review }}</p>
                                 <!-- Debugging: Print review information -->
-                                <p>Debug: Review ID: {{ review.id }}, Sentiment: {{ review.sentiment }}</p>
+                                <p>Debug: Review ID: {{ review.id }}</p>
+                                <p>Debug: Reviewer Name: {{ review.name }}</p>
+                                <p>Debug: Review Content: {{ review.review }}</p>
                             </div>
                         </div>
+                        <hr>
                     {% endfor %}
                 </div>
                 <!-- Add Review button -->
