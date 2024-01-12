@@ -1,8 +1,12 @@
 import requests
 import json
 import logging
+import os
 from .models import CarDealer, DealerReview
 from requests.auth import HTTPBasicAuth
+from ibm_watson import NaturalLanguageUnderstandingV1
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
+from ibm_watson.natural_language_understanding_v1 import Features, SentimentOptions
 
 def get_request(url, **kwargs):
     print(kwargs)
@@ -112,14 +116,18 @@ def get_dealer_reviews_from_cf(url, **kwargs):
     if(json_result):
         dealer_reviews = json_result;
         for dealer_review in dealer_reviews:
-            sentiment = analyze_review_sentiments(dealer_review['review'])
+            # Comment out the line that calls analyze_review_sentiments
+            # sentiment = analyze_review_sentiments(dealer_review['review'])
+            
+            # Directly assign a default sentiment value
+            sentiment = "neutral"
+            
             dealer_review_obj = DealerReview(dealership=dealer_review['dealership'], name=dealer_review['name'],
                                     purchase=dealer_review['purchase'], review=dealer_review['review'], purchase_date=dealer_review['purchase_date'],
                                     car_make=dealer_review['car_make'], car_model=dealer_review['car_model'], car_year=dealer_review['car_year'],
                                     id=dealer_review['id'], sentiment=sentiment)
             results.append(dealer_review_obj)
     return results
-
 
 
 # Create an `analyze_review_sentiments` method to call Watson NLU and analyze text
@@ -157,5 +165,3 @@ def analyze_review_sentiments(review_text):
     print(sentiment_label)
 
     return sentiment_label
-
-
