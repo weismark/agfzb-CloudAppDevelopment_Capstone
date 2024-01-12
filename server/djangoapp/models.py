@@ -72,16 +72,16 @@ class CarDealer:
 
 # <HINT> Create a plain Python class `DealerReview` to hold review data
 class DealerReview:
-    def __init__(self, dealership, id, name, purchase, review, car_make=None, car_model=None, car_year=None, purchase_date=None, sentiment="neutral"):
-        self.car_make = car_make
-        self.car_model = car_model
-        self.car_year = car_year
+    def __init__(self, dealership, id, name, purchase, review, car_make, car_model, car_year, purchase_date, sentiment="neutral"):
         self.dealership = dealership
         self.id = id  # The id of the review
         self.name = name  # Name of the reviewer
-        self.purchase = purchase  # Did the reviewer purchase the car? bool
-        self.purchase_date = purchase_date
+        self.purchase = purchase  # Did the reviewer purchase the car?
         self.review = review  # The actual review text
+        self.car_make = car_make
+        self.car_model = car_model
+        self.car_year = car_year
+        self.purchase_date = purchase_date
         self.sentiment = sentiment  # Watson NLU sentiment analysis of review
 
     def __str__(self):
