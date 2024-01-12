@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 from .models import CarModel, CarMake, CarDealer, DealerReview
-from .restapis import get_dealer_by_id, get_dealers_from_cf, get_dealers_by_state, get_dealer_reviews_from_cf, post_request
+from .restapis import get_request, get_dealer_by_id_from_cf, get_dealers_from_cf, get_dealers_by_state, get_dealer_reviews_from_cf, post_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
@@ -39,7 +39,8 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return HttpResponse("User successfully logged in.")
+            messages.success(request, "Login successfully!")
+            return redirect('djangoapp:index')
         else:
             return HttpResponse("Invalid username or password.")
     else:
@@ -145,8 +146,6 @@ def get_dealer_details(request, dealer_id):
 
         return render(request, 'djangoapp/dealer_details.html', context)
 
-
-
 # Create a `add_review` view to submit a review
 def add_review(request, dealer_id):
     if request.method == "GET":
@@ -159,7 +158,8 @@ def add_review(request, dealer_id):
 
         # Check if there are dealerships before accessing the first one
         if dealerships:
-            context['dealer'] = dealerships[0]
+            specific_dealer = next((dealer for dealer in dealerships if dealer.id == dealer_id), None)
+            context['dealer'] = specific_dealer
         else:
             context['dealer'] = None  # Handle the case where there are no dealerships
 
