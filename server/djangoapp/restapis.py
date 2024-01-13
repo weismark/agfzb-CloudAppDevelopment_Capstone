@@ -8,32 +8,21 @@ from ibm_watson import NaturalLanguageUnderstandingV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from ibm_watson.natural_language_understanding_v1 import Features, SentimentOptions
 
-def get_request(url, **kwargs):
+def get_request(url, api_key=None, **kwargs):
     print(kwargs)
     print("GET from {} ".format(url))
-    apikey = kwargs.get("apikey")
     try:
-        if apikey:
-            params = dict()
-            params["text"] = kwargs.get("text")
-            params["version"] = kwargs.get("version")
-            params["features"] = kwargs.get("features")
-            params["return_analyzed_text"] = kwargs.get("return_analyzed_text")
-            
-            response = requests.get(url, data=params, auth=HTTPBasicAuth('apikey', apikey), headers={'Content-Type': 'application/json'})
+        if api_key:
+            response = requests.get(url, params=kwargs, auth=HTTPBasicAuth('apikey', api_key), headers={'Content-Type': 'application/json'})
         else:
-            # Call get method of requests library with URL and parameters
             response = requests.get(url, headers={'Content-Type': 'application/json'}, params=kwargs)
         
-        # Check if the response contains valid JSON
         response.raise_for_status()  # This will raise an exception if the response status code is an HTTP error.
         json_data = response.json()
         return json_data
     except Exception as e:
-        # Handle the exception and log or print an error message
         print(f"Error in get_request: {e}")
         return None
-
 
 
 # Create a `post_request` to make HTTP POST requests
@@ -112,16 +101,13 @@ def get_dealers_by_state(url, state):
 
 def get_dealer_reviews_from_cf(url, **kwargs):
     results = []
-    json_result = get_request(url, id=kwargs['id'])
+    json_result = get_request(url, api_key='9rGw2V7ZXBeANYuhlaNPdMuJ4hrM_DgubHIB6iXCIHMo', id=kwargs['id'])
     if(json_result):
-        dealer_reviews = json_result;
+        dealer_reviews = json_result
         for dealer_review in dealer_reviews:
-            # Comment out the line that calls analyze_review_sentiments
-            # sentiment = analyze_review_sentiments(dealer_review['review'])
-            
-            # Directly assign a default sentiment value
-            sentiment = "neutral"
-            
+            print(f"Review text: {dealer_review['review']}")
+            sentiment = analyze_review_sentiments(dealer_review['review'])
+            print(f"Review sentiment: {sentiment}")
             dealer_review_obj = DealerReview(dealership=dealer_review['dealership'], name=dealer_review['name'],
                                     purchase=dealer_review['purchase'], review=dealer_review['review'], purchase_date=dealer_review['purchase_date'],
                                     car_make=dealer_review['car_make'], car_model=dealer_review['car_model'], car_year=dealer_review['car_year'],
@@ -130,38 +116,42 @@ def get_dealer_reviews_from_cf(url, **kwargs):
     return results
 
 
+
+
 # Create an `analyze_review_sentiments` method to call Watson NLU and analyze text
 # def analyze_review_sentiments(text):
 # - Call get_request() with specified arguments
 # - Get the returned sentiment label such as Positive or Negative
-def analyze_review_sentiments(review_text):
-    # Watson NLU configuration
-    try:
-        if os.environ['env_type'] == 'PRODUCTION':
-            url = os.environ['WATSON_NLU_URL']
-            api_key = os.environ["WATSON_NLU_API_KEY"]
-    except KeyError:
-        url = config('WATSON_NLU_URL')
-        api_key = config('WATSON_NLU_API_KEY')
+def analyze_review_sentiments(dealerreview):
+    url = "https://api.au-syd.natural-language-understanding.watson.cloud.ibm.com/instances/55f4e6bc-8bce-4e00-a809-a673f376bc99"
+    api_key = "9rGw2V7ZXBeANYuhlaNPdMuJ4hrM_DgubHIB6iXCIHMo"
+    params = dict()
+    params["text"] = dealerreview,
+    params["version"] = "2022-04-07"
+    params["features"] = ["sentiment"]
+    params["return_analyzed_text"] = False
+    response = get_request(url, api_key, params=params)
 
-    version = '2021-08-01'
     authenticator = IAMAuthenticator(api_key)
-    nlu = NaturalLanguageUnderstandingV1(
-        version=version, authenticator=authenticator)
-    nlu.set_service_url(url)
+    natural_language_understanding = NaturalLanguageUnderstandingV1(
+        version='2022-04-07',
+        authenticator=authenticator
+    )
 
-    # get sentiment of the review
+    natural_language_understanding.set_service_url(url)
+
     try:
-        response = nlu.analyze(text=review_text, features=Features(
-            sentiment=SentimentOptions())).get_result()
-        print(json.dumps(response))
-        # sentiment_score = str(response["sentiment"]["document"]["score"])
-        sentiment_label = response["sentiment"]["document"]["label"]
+        response = natural_language_understanding.analyze(
+            text = dealerreview,
+            features=Features(sentiment=SentimentOptions())).get_result()
+        print(f"Watson NLU response: {response}")
     except:
-        print("Review is too short for sentiment analysis. Assigning default sentiment value 'neutral' instead")
-        sentiment_label = "neutral"
-
-    # print(sentiment_score)
-    print(sentiment_label)
-
-    return sentiment_label
+        return "neutral"  # return "neutral" when an exception occurs
+    print(response)
+    sentiment_score = response['sentiment']['document']['score']
+    if sentiment_score > 0:
+        return "positive"
+    elif sentiment_score < 0:
+        return "negative"
+    else:
+        return "neutral"
