@@ -1,0 +1,26 @@
+# Add base image
+FROM python:3.12
+
+# Install and update Python
+RUN apt-get update && apt-get install -y python3-pip
+
+# Add requirements.txt file
+COPY requirements.txt /app/
+
+# Change working directory
+WORKDIR /app
+
+# Install the requirements
+RUN pip3 install --upgrade pip &&\
+    pip3 install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the files
+COPY . /app
+
+# Expose port
+EXPOSE 8000
+
+# Run command to start application
+RUN chmod +x /app/entrypoint.sh
+ENTRYPOINT ["/bin/bash","/app/entrypoint.sh"]
+CMD ["gunicorn", "--bind", ":8000", "--workers", "3", "djangobackend.wsgi"]
