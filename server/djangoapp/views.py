@@ -96,7 +96,7 @@ def get_dealerships(request):
         dealerships = get_dealers_from_cf(url)
         context["dealerships"] = get_dealers_from_cf(url)
         # Add debugging output
-        print("Dealerships:", dealerships)
+        # print("Dealerships:", dealerships)
         # Concat all dealer's short name
         dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
         # Return a list of dealer short name
@@ -111,11 +111,11 @@ def get_dealer_details(request, dealer_id):
         reviews_url = "https://markoweissma-5000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/get_reviews"
        
         dealerships = get_dealers_from_cf(dealer_url, id=dealer_id)
-        print("Dealerships:", dealerships)
+        # print("Dealerships:", dealerships)
        
         if dealerships:
             context['dealership'] = dealerships[0]
-            print(f"Dealship Name: {dealerships[0].full_name}")
+            # print(f"Dealship Name: {dealerships[0].full_name}")
             context['dealer_id'] = dealer_id
         else:
             context['dealership'] = None
@@ -123,21 +123,21 @@ def get_dealer_details(request, dealer_id):
        
         try:
             dealership_reviews_response = get_dealer_reviews_from_cf(reviews_url, id=dealer_id)
-            print("Dealership Reviews API Response Content:", dealership_reviews_response)
+            # print("Dealership Reviews API Response Content:", dealership_reviews_response)
 
             if isinstance(dealership_reviews_response, list):
                 if dealership_reviews_response:
-                    print("Dealership Reviews API Response Content:", dealership_reviews_response)
+                    # print("Dealership Reviews API Response Content:", dealership_reviews_response)
                     context['reviews'] = dealership_reviews_response
-                    print("Context:", context)
+                    # print("Context:", context)
                 else:
-                    print("Dealership Reviews API Response: Empty list")
+                    # print("Dealership Reviews API Response: Empty list")
                     context['reviews'] = []
             else:
-                print("Invalid Dealership Reviews API Response:", dealership_reviews_response)
+                # print("Invalid Dealership Reviews API Response:", dealership_reviews_response)
                 context['reviews'] = []
         except Exception as e:
-            print(f"Error getting reviews from API: {e}")
+            # print(f"Error getting reviews from API: {e}")
             context['reviews'] = []
 
         return render(request, 'djangoapp/dealer_details.html', context)
@@ -179,7 +179,7 @@ def add_review(request, dealer_id):
                 review["car_make"] = None
             review["car_model"] = car_model.name
             review["car_year"] = str(car_model.year)[0:4]
-            print(review)
+            # print(review)
             response = post_request(url, review, dealerId=dealer_id)
-            print(response)
+            # print(response)
         return redirect("djangoapp:dealer_details", dealer_id=dealer_id)

@@ -9,8 +9,8 @@ from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from ibm_watson.natural_language_understanding_v1 import Features, SentimentOptions
 
 def get_request(url, api_key=None, **kwargs):
-    print(kwargs)
-    print("GET from {} ".format(url))
+    # print(kwargs)
+    # print("GET from {} ".format(url))
     try:
         if api_key:
             response = requests.get(url, params=kwargs, auth=HTTPBasicAuth('apikey', api_key), headers={'Content-Type': 'application/json'})
@@ -58,7 +58,7 @@ def get_dealers_from_cf(url, **kwargs):
                                    short_name=dealer["short_name"],
                                    st=dealer["st"], zip=dealer["zip"])
             results.append(dealer_obj)
-    print(results)
+    # print(results)
     return results
 
 
@@ -105,17 +105,15 @@ def get_dealer_reviews_from_cf(url, **kwargs):
     if(json_result):
         dealer_reviews = json_result
         for dealer_review in dealer_reviews:
-            print(f"Review text: {dealer_review['review']}")
+            # print(f"Review text: {dealer_review['review']}")
             sentiment = analyze_review_sentiments(dealer_review['review'])
-            print(f"Review sentiment: {sentiment}")
+            # print(f"Review sentiment: {sentiment}")
             dealer_review_obj = DealerReview(dealership=dealer_review['dealership'], name=dealer_review['name'],
                                     purchase=dealer_review['purchase'], review=dealer_review['review'], purchase_date=dealer_review['purchase_date'],
                                     car_make=dealer_review['car_make'], car_model=dealer_review['car_model'], car_year=dealer_review['car_year'],
                                     id=dealer_review['id'], sentiment=sentiment)
             results.append(dealer_review_obj)
     return results
-
-
 
 
 # Create an `analyze_review_sentiments` method to call Watson NLU and analyze text
@@ -144,10 +142,10 @@ def analyze_review_sentiments(dealerreview):
         response = natural_language_understanding.analyze(
             text = dealerreview,
             features=Features(sentiment=SentimentOptions())).get_result()
-        print(f"Watson NLU response: {response}")
+        # print(f"Watson NLU response: {response}")
     except:
         return "neutral"  # return "neutral" when an exception occurs
-    print(response)
+    # print(response)
     sentiment_score = response['sentiment']['document']['score']
     if sentiment_score > 0:
         return "positive"
